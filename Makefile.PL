@@ -24,8 +24,8 @@ use Devel::CheckLib;
 check_lib_or_exit(lib => 'Xcursor');
 
 Tk::MMutil::TkExtMakefile(
-			  VERSION      => '0.02_50',
-			  XS_VERSION   => '0.02_50', # specify explicitely, other Tk's XS_VERSION is used
+			  VERSION      => '0.03',
+			  XS_VERSION   => '0.03', # specify explicitely, other Tk's XS_VERSION is used
 			  NAME         => 'Tk::Xcursor',
 			  OBJECT       => '$(O_FILES)',
 			  LIBS         => ['-lXcursor'],
@@ -37,3 +37,21 @@ Tk::MMutil::TkExtMakefile(
 								},
 					}) : ()),
 			 );
+
+sub MY::postamble {
+    my $postamble = "";
+
+    if (defined $ENV{USER} && $ENV{USER} eq 'eserte' && $^O =~ /bsd/i && -f "../../perl.release.mk") {
+	$postamble .= <<'EOF';
+
+# Test::Distribution complains about Tk::Font which is part of Tk
+PERL_TEST_DISTRIBUTION_OPTS=not podcover,prereq
+
+.include "../../perl.release.mk"
+.include "../../perl.git.mk"
+
+EOF
+    }
+
+    $postamble;
+}
